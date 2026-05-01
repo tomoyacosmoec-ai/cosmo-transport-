@@ -212,6 +212,7 @@
             margin-bottom: 30px;
             border-bottom: 1px solid rgba(100, 200, 255, 0.2);
             padding-bottom: 0;
+            overflow-x: auto;
         }
         
         .tab-button {
@@ -226,6 +227,7 @@
             border-bottom: 3px solid transparent;
             position: relative;
             letter-spacing: 1px;
+            flex-shrink: 0;
         }
         
         .tab-button::after {
@@ -672,32 +674,36 @@
                         <div class="download-item">
                             <div class="download-info">
                                 <div class="download-name">コスモ搬送 操作マニュアル</div>
-                                <div class="download-meta">PDF · 約5.2MB</div>
+                                <div class="download-meta">PDF · Google Drive</div>
                             </div>
-                            <button class="download-button" onclick="downloadFile('manual_ja.pdf', 'コスモ搬送_操作マニュアル.pdf')">⬇ DL</button>
+                            <button class="download-button" onclick="downloadFile('1k3aEI3JkV-cBkD6RbotNCxyhKAc1tcq7', 'コスモ搬送_操作マニュアル.pdf')">⬇ DL</button>
                         </div>
                         <div class="download-item">
                             <div class="download-info">
                                 <div class="download-name">メンテナンス完全ガイド</div>
-                                <div class="download-meta">PDF · 約3.8MB</div>
+                                <div class="download-meta">PDF · Google Drive</div>
                             </div>
-                            <button class="download-button" onclick="downloadFile('maintenance_guide.pdf', 'メンテナンス完全ガイド.pdf')">⬇ DL</button>
+                            <button class="download-button" onclick="downloadFile('1k3aEI3JkV-cBkD6RbotNCxyhKAc1tcq7', 'メンテナンス完全ガイド.pdf')">⬇ DL</button>
                         </div>
                         <div class="download-item">
                             <div class="download-info">
                                 <div class="download-name">トラブルシューティング</div>
-                                <div class="download-meta">PDF · 約2.1MB</div>
+                                <div class="download-meta">PDF · Google Drive</div>
                             </div>
-                            <button class="download-button" onclick="downloadFile('troubleshooting.pdf', 'トラブルシューティング.pdf')">⬇ DL</button>
+                            <button class="download-button" onclick="downloadFile('1k3aEI3JkV-cBkD6RbotNCxyhKAc1tcq7', 'トラブルシューティング.pdf')">⬇ DL</button>
                         </div>
                         <div class="download-item">
                             <div class="download-info">
                                 <div class="download-name">仕様書・技術資料</div>
-                                <div class="download-meta">PDF · 約7.3MB</div>
+                                <div class="download-meta">PDF · Google Drive</div>
                             </div>
-                            <button class="download-button" onclick="downloadFile('specifications.pdf', '仕様書・技術資料.pdf')">⬇ DL</button>
+                            <button class="download-button" onclick="downloadFile('1k3aEI3JkV-cBkD6RbotNCxyhKAc1tcq7', '仕様書・技術資料.pdf')">⬇ DL</button>
                         </div>
                     </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: rgba(100, 200, 255, 0.1); border: 1px solid rgba(100, 200, 255, 0.3); border-radius: 8px; color: rgba(100, 200, 255, 0.8); font-size: 12px;">
+                    <strong>ℹ 情報：</strong> PDFファイルはGoogle Driveから配信されています。複数のPDFを追加したい場合は、Google Drive内に別のPDFファイルを保存し、そのファイルIDを取得してボタンを追加してください。
                 </div>
             </div>
             
@@ -708,7 +714,6 @@
     
     <script>
         const CORRECT_PASSWORD = '0123';
-        const PDF_BASE_URL = 'https://raw.githubusercontent.com/tomoyacosmoec-ai/cosmo-transport-/main/pdfs/';
         
         function checkPassword(event) {
             event.preventDefault();
@@ -753,26 +758,39 @@
             }, 3000);
         }
 
-        function downloadFile(fileName, displayName) {
-            const fileUrl = PDF_BASE_URL + fileName;
+        function downloadFile(fileId, displayName) {
+            // Google Drive のダウンロードURL
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
             
+            console.log('ダウンロードURL:', downloadUrl);
+            console.log('ダウンロードファイル名:', displayName);
+            
+            // ダウンロードリンクを作成
             const link = document.createElement('a');
-            link.href = fileUrl;
+            link.href = downloadUrl;
             link.download = displayName;
+            link.target = '_blank';
+            link.style.display = 'none';
+            
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
             
+            setTimeout(() => {
+                document.body.removeChild(link);
+            }, 100);
+            
+            // メッセージ表示
             const message = document.getElementById('message');
             message.style.display = 'block';
-            message.textContent = `✓ ${displayName} をダウンロード中...`;
+            message.innerHTML = `✓ ${displayName} をダウンロード中...<br><small style="font-size: 11px; opacity: 0.7;">ブラウザのダウンロードフォルダを確認してください</small>`;
             setTimeout(() => {
                 message.style.display = 'none';
-            }, 3000);
+            }, 4000);
         }
         
         window.addEventListener('load', () => {
             document.getElementById('passwordInput').focus();
+            console.log('ページ読み込み完了 - Google Drive統合版');
         });
     </script>
 </body>

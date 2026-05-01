@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コスモ搬送メンテナンス動画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1b2a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #e0e6ff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(100, 200, 255, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(150, 100, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            background: rgba(15, 25, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        #passwordScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            min-height: 400px;
+        }
+        
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 350px;
+        }
+        
+        .password-form h2 {
+            text-align: center;
+            color: #64c8ff;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        
+        .lock-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .password-form input {
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid rgba(100, 200, 255, 0.3);
+            border-radius: 8px;
+            text-align: center;
+            letter-spacing: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #64c8ff;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        .password-form input::placeholder {
+            color: rgba(100, 200, 255, 0.3);
+        }
+        
+        .password-form input:focus {
+            outline: none;
+            border-color: #64c8ff;
+            box-shadow: 0 0 20px rgba(100, 200, 255, 0.5),
+                        inset 0 0 10px rgba(100, 200, 255, 0.1);
+            background: rgba(100, 200, 255, 0.05);
+        }
+        
+        .password-form button {
+            padding: 15px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #64c8ff 0%, #96ff64 100%);
+            color: #0a0e27;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(100, 200, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .password-form button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .password-form button:hover::before {
+            left: 100%;
+        }
+        
+        .password-form button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(100, 200, 255, 0.5);
+        }
+        
+        .password-form button:active {
+            transform: translateY(-1px);
+        }
+        
+        #passwordError {
+            color: #ff6464;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+            font-size: 14px;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        #mainContent {
+            display: none;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid rgba(100, 200, 255, 0.3);
+            padding-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 42px;
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(100, 200, 255, 0.5); }
+            50% { text-shadow: 0 0 25px rgba(100, 200, 255, 0.8); }
+        }
+        
+        h1 {
+            color: #64c8ff;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(100, 200, 255, 0.6);
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+        
+        .tab-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.2);
+            padding-bottom: 0;
+        }
+        
+        .tab-button {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(100, 200, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            letter-spacing: 1px;
+        }
+        
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #64c8ff, #96ff64);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab-button:hover {
+            color: #64c8ff;
+        }
+        
+        .tab-button.active {
+            color: #64c8ff;
+            border-bottom-color: transparent;
+        }
+        
+        .tab-button.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .video-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.05) 0%, rgba(150, 100, 255, 0.05) 100%);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(100, 200, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+            z-index: 0;
+        }
+        
+        .video-item:hover::before {
+            left: 100%;
+        }
+        
+        .video-item:hover {
+            border-color: #64c8ff;
+            box-shadow: 0 0 20px rgba(100, 200, 255, 0.3),
+                        inset 0 0 10px rgba(100, 200, 255, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .video-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .video-index {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #64c8ff, #96ff64);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            color: #0a0e27;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .video-title {
+            font-weight: 600;
+            color: #e0e6ff;
+            margin-bottom: 5px;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+        
+        .video-description {
+            font-size: 12px;
+            color: rgba(100, 200, 255, 0.5);
+            letter-spacing: 0.5px;
+        }
+        
+        .play-button {
+            background: linear-gradient(135deg, #64c8ff 0%, #96ff64 100%);
+            color: #0a0e27;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            margin-left: 15px;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+        }
+        
+        .play-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            transition: left 0.4s ease;
+            z-index: -1;
+        }
+        
+        .play-button:hover::before {
+            left: 100%;
+        }
+        
+        .play-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(100, 200, 255, 0.5);
+        }
+        
+        .play-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .message {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(150, 255, 100, 0.1) 0%, rgba(100, 200, 255, 0.1) 100%);
+            border: 1px solid rgba(150, 255, 100, 0.3);
+            border-radius: 8px;
+            color: #96ff64;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+            animation: slideDown 0.4s ease;
+            letter-spacing: 1px;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .tech-line {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(100, 200, 255, 0.3), transparent);
+            margin: 30px 0;
+        }
+
+        .download-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(100, 150, 255, 0.1) 0%, rgba(150, 100, 200, 0.1) 100%);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .download-title {
+            color: #64c8ff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .download-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: rgba(100, 200, 255, 0.05);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .download-item:hover {
+            background: rgba(100, 200, 255, 0.1);
+            border-color: #64c8ff;
+            transform: translateX(5px);
+        }
+
+        .download-info {
+            flex: 1;
+        }
+
+        .download-name {
+            color: #e0e6ff;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .download-meta {
+            color: rgba(100, 200, 255, 0.5);
+            font-size: 11px;
+        }
+
+        .download-button {
+            background: linear-gradient(135deg, #64c8ff 0%, #96ff64 100%);
+            color: #0a0e27;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            margin-left: 15px;
+            box-shadow: 0 0 10px rgba(100, 200, 255, 0.3);
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 200, 255, 0.5);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .logo {
+                font-size: 36px;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+            }
+            
+            .tab-container {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .tab-button {
+                padding: 12px 18px;
+                font-size: 12px;
+            }
+            
+            .video-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .play-button {
+                width: 100%;
+                margin-left: 0;
+                padding: 14px;
+                font-size: 14px;
+            }
+            
+            .video-title {
+                font-size: 14px;
+            }
+            
+            .video-description {
+                font-size: 11px;
+            }
+            
+            .password-form {
+                max-width: 100%;
+            }
+            
+            .password-form h2 {
+                font-size: 24px;
+            }
+            
+            #passwordScreen {
+                min-height: 300px;
+            }
+
+            .download-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .download-button {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="passwordScreen">
+            <div class="lock-icon">🔐</div>
+            <form class="password-form" onsubmit="checkPassword(event)">
+                <h2>システムアクセス</h2>
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="パスワードを入力"
+                    autocomplete="off"
+                >
+                <button type="submit">ログイン</button>
+            </form>
+            <div id="passwordError">✗ パスワードが間違っています</div>
+        </div>
+        
+        <div id="mainContent">
+            <div class="header">
+                <div class="logo">▶ ⬢</div>
+                <h1>コスモ搬送</h1>
+                <div class="subtitle">動画ライブラリシステム</div>
+            </div>
+            
+            <div class="tab-container">
+                <button class="tab-button active" onclick="switchTab('maintenance')">
+                    ⚙ メンテナンス
+                </button>
+                <button class="tab-button" onclick="switchTab('introduction')">
+                    ℹ 紹介動画
+                </button>
+                <button class="tab-button" onclick="switchTab('downloads')">
+                    📄 ダウンロード
+                </button>
+            </div>
+            
+            <div id="maintenance" class="tab-content active">
+                <div class="video-list">
+                    <div class="video-item">
+                        <div class="video-info">
+                            <div class="video-index">01</div>
+                            <div class="video-title">カバーAの取り外し</div>
+                            <div class="video-description">YouTube · メンテナンスプロトコル</div>
+                        </div>
+                        <button class="play-button" onclick="playVideo('https://youtu.be/T17WFL7ervM')">▶ 再生</button>
+                    </div>
+                    
+                    <div class="video-item">
+                        <div class="video-info">
+                            <div class="video-index">02</div>
+                            <div class="video-title">カバーAの取り付け</div>
+                            <div class="video-description">YouTube · メンテナンスプロトコル</div>
+                        </div>
+                        <button class="play-button" onclick="playVideo('https://youtu.be/gIsv5ZmqsfI')">▶ 再生</button>
+                    </div>
+                    
+                    <div class="video-item">
+                        <div class="video-info">
+                            <div class="video-index">03</div>
+                            <div class="video-title">スペシャルサンプル</div>
+                            <div class="video-description">YouTube · アドバンスプロトコル ㊙</div>
+                        </div>
+                        <button class="play-button" onclick="playVideo('https://youtu.be/zaxENPKPQaw')">▶ 再生</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="introduction" class="tab-content">
+                <div class="video-list">
+                    <div class="video-item">
+                        <div class="video-info">
+                            <div class="video-index">01</div>
+                            <div class="video-title">システム概要</div>
+                            <div class="video-description">YouTube · 製品紹介</div>
+                        </div>
+                        <button class="play-button" onclick="playVideo('https://youtu.be/dQw4w9WgXcQ')">▶ 再生</button>
+                    </div>
+                    
+                    <div class="video-item">
+                        <div class="video-info">
+                            <div class="video-index">02</div>
+                            <div class="video-title">機能仕様</div>
+                            <div class="video-description">YouTube · 製品紹介</div>
+                        </div>
+                        <button class="play-button" onclick="playVideo('https://youtu.be/9bZkp7q19f0')">▶ 再生</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="downloads" class="tab-content">
+                <div class="download-section">
+                    <div class="download-title">📋 取り扱い説明書</div>
+                    <div class="download-list">
+                        <div class="download-item">
+                            <div class="download-info">
+                                <div class="download-name">コスモ搬送 操作マニュアル</div>
+                                <div class="download-meta">PDF · 約5.2MB</div>
+                            </div>
+                            <button class="download-button" onclick="downloadFile('manual_ja.pdf', 'コスモ搬送_操作マニュアル.pdf')">⬇ DL</button>
+                        </div>
+                        <div class="download-item">
+                            <div class="download-info">
+                                <div class="download-name">メンテナンス完全ガイド</div>
+                                <div class="download-meta">PDF · 約3.8MB</div>
+                            </div>
+                            <button class="download-button" onclick="downloadFile('maintenance_guide.pdf', 'メンテナンス完全ガイド.pdf')">⬇ DL</button>
+                        </div>
+                        <div class="download-item">
+                            <div class="download-info">
+                                <div class="download-name">トラブルシューティング</div>
+                                <div class="download-meta">PDF · 約2.1MB</div>
+                            </div>
+                            <button class="download-button" onclick="downloadFile('troubleshooting.pdf', 'トラブルシューティング.pdf')">⬇ DL</button>
+                        </div>
+                        <div class="download-item">
+                            <div class="download-info">
+                                <div class="download-name">仕様書・技術資料</div>
+                                <div class="download-meta">PDF · 約7.3MB</div>
+                            </div>
+                            <button class="download-button" onclick="downloadFile('specifications.pdf', '仕様書・技術資料.pdf')">⬇ DL</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tech-line"></div>
+            <div class="message" id="message">✓ 動画ストリーム開始</div>
+        </div>
+    </div>
+    
+    <script>
+        const CORRECT_PASSWORD = '0123';
+        const PDF_BASE_URL = 'https://raw.githubusercontent.com/your-username/cosmo-transport/main/pdfs/';
+        
+        function checkPassword(event) {
+            event.preventDefault();
+            
+            const input = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('passwordError');
+            
+            if (input === CORRECT_PASSWORD) {
+                document.getElementById('passwordScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                errorMsg.style.display = 'none';
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+        
+        function switchTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function playVideo(videoUrl) {
+            window.open(videoUrl, '_blank');
+            
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.textContent = '✓ 動画ストリーム開始';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+
+        function downloadFile(fileName, displayName) {
+            const fileUrl = PDF_BASE_URL + fileName;
+            
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.download = displayName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.textContent = `✓ ${displayName} をダウンロード中...`;
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+        
+        window.addEventListener('load', () => {
+            document.getElementById('passwordInput').focus();
+        });
+    </script>
+</body>
+</html>
